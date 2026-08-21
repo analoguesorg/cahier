@@ -16,6 +16,10 @@ class Snips_Telegrams {
         add_action( 'init', array( $this, 'register_telegram_block' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
+        // Dedicated AJAX comment submission endpoints
+        add_action( 'wp_ajax_snips_submit_field_note', array( $this, 'handle_ajax_comment' ) );
+        add_action( 'wp_ajax_nopriv_snips_submit_field_note', array( $this, 'handle_ajax_comment' ) );
+
         // Shortcodes
         add_shortcode( 'snip_telegram_countdown', array( $this, 'render_countdown_shortcode' ) );
         add_shortcode( 'snip_telegram_stats', array( $this, 'render_stats_shortcode' ) );
@@ -35,145 +39,89 @@ class Snips_Telegrams {
             );
         }
 
-        $options   = get_option( 'snips_settings', array() );
-        $time_mode = ! empty( $options['timestamp_mode'] ) ? $options['timestamp_mode'] : 'local';
+        if ( file_exists( SNIPS_PATH . 'assets/js/snips-telegrams.js' ) ) {
+            wp_enqueue_script(
+                'snips-telegrams-js',
+                SNIPS_URL . 'assets/js/snips-telegrams.js',
+                array( 'jquery' ),
+                SNIPS_VERSION,
+                true
+            );
 
-        wp_add_inline_script(
-            'jquery',
-            '
-            document.addEventListener("DOMContentLoaded", function() {
-                var timeMode = "' . esc_js( $time_mode ) . '";
+            $options   = get_option( 'snips_settings', array() );
+            $time_mode = ! empty( $options['timestamp_mode'] ) ? $options['timestamp_mode'] : 'local';
 
-                function localizeTimestamps() {
-                    var times = document.querySelectorAll(".snip-ledger-time[datetime]");
-                    var now = new Date();
+            wp_localize_script( 'snips-telegrams-js', 'SnipsTelegramsData', array(
+                'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
+                'nonce'    => wp_create_nonce( 'snips_field_note_nonce' ),
+                'timeMode' => $time_mode,
+            ) );
+        }
+    }
 
-                    times.forEach(function(el) {
-                        var dateStr = el.getAttribute("datetime");
-                        if (!dateStr) return;
-                        var date = new Date(dateStr);
+    public function handle_ajax_comment() {
+        check_ajax_referer( 'snips_field_note_nonce', 'nonce' );
 
-                        if (timeMode === "utc") {
-                            var months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-                            var month = months[date.getUTCMonth()];
-                            var day = date.getUTCDate();
-                            var year = date.getUTCFullYear();
-                            var hours = String(date.getUTCHours()).padStart(2, "0");
-                            var mins = String(date.getUTCMinutes()).padStart(2, "0");
-                            el.textContent = month + " " + day + ", " + year + " " + hours + ":" + mins + " UTC";
-                        } else {
-                            var diffSec = Math.floor((now - date) / 1000);
-                            if (diffSec < 60) {
-                                el.textContent = "just now";
-                            } else if (diffSec < 3600) {
-                                el.textContent = Math.floor(diffSec / 60) + "m ago";
-                            } else if (diffSec < 86400) {
-                                el.textContent = Math.floor(diffSec / 3600) + "h ago";
-                            } else if (diffSec < 604800) {
-                                el.textContent = Math.floor(diffSec / 86400) + "d ago";
-                            } else {
-                                el.textContent = date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-                            }
-                        }
-                    });
-                }
-                localizeTimestamps();
+        $comment_post_ID = isset( $_POST['comment_post_ID'] ) ? intval( $_POST['comment_post_ID'] ) : 0;
+        $comment_parent  = isset( $_POST['comment_parent'] ) ? intval( $_POST['comment_parent'] ) : 0;
+        $comment_content = isset( $_POST['comment'] ) ? trim( (string) $_POST['comment'] ) : '';
 
-                // Focus & Smooth Scroll into Composer
-                var leaveBtn = document.querySelector(".snip-btn-field-note");
-                if (leaveBtn) {
-                    leaveBtn.addEventListener("click", function(e) {
-                        e.preventDefault();
-                        var dockWrap = document.querySelector(".snip-dock-input-wrap");
-                        var textarea = document.querySelector("#comment");
-                        if (textarea && dockWrap) {
-                            textarea.focus();
-                            dockWrap.classList.add("snip-dock-highlight");
-                            textarea.scrollIntoView({ behavior: "smooth", block: "center" });
-                            setTimeout(function() {
-                                dockWrap.classList.remove("snip-dock-highlight");
-                            }, 1800);
-                        }
-                    });
-                }
+        if ( empty( $comment_post_ID ) || empty( $comment_content ) ) {
+            wp_send_json_error( array( 'message' => __( 'Missing required fields.', 'analogues-snips' ) ) );
+        }
 
-                // Toggle Reply / Cancel Behavior
-                document.addEventListener("click", function(e) {
-                    var replyLink = e.target.closest(".comment-reply-link");
-                    if (replyLink) {
-                        var commentId = replyLink.getAttribute("data-commentid");
-                        var cancelLink = document.getElementById("cancel-comment-reply-link");
-                        var respondDiv = document.getElementById("respond");
+        $user = wp_get_current_user();
+        $is_user_logged_in = is_user_logged_in();
 
-                        if (respondDiv && respondDiv.parentElement.id === "comment-" + commentId) {
-                            e.preventDefault();
-                            if (cancelLink) cancelLink.click();
-                        }
-                    }
-                });
+        if ( $is_user_logged_in ) {
+            $author_input = isset( $_POST['author'] ) ? sanitize_text_field( $_POST['author'] ) : '';
+            $author       = ! empty( $author_input ) ? $author_input : $user->display_name;
+            $email        = $user->user_email;
+            $user_id      = $user->ID;
 
-                // Zero-Reload AJAX Submission
-                var commentForm = document.getElementById("commentform");
-                if (!commentForm) return;
+            // Track if user used a custom alias instead of account name
+            $is_custom_alias = ( $author !== $user->display_name && $author !== $user->user_login );
+        } else {
+            $author          = isset( $_POST['author'] ) ? sanitize_text_field( $_POST['author'] ) : 'Guest';
+            $email           = isset( $_POST['email'] ) ? sanitize_email( $_POST['email'] ) : '';
+            $user_id         = 0;
+            $is_custom_alias = false;
+        }
 
-                commentForm.addEventListener("submit", function(e) {
-                    var commentTextarea = commentForm.querySelector("textarea#comment");
-                    var submitBtn = commentForm.querySelector("input[type=\"submit\"], button[type=\"submit\"]");
-
-                    if (!commentTextarea || !commentTextarea.value.trim()) return;
-
-                    e.preventDefault();
-                    var formData = new FormData(commentForm);
-
-                    if (submitBtn) {
-                        submitBtn.disabled = true;
-                        submitBtn.value = "Transmitting...";
-                    }
-
-                    fetch(commentForm.action, {
-                        method: "POST",
-                        body: formData,
-                        credentials: "same-origin"
-                    })
-                    .then(function(res) { return res.text(); })
-                    .then(function(html) {
-                        var parser = new DOMParser();
-                        var doc = parser.parseFromString(html, "text/html");
-                        
-                        var newComments = doc.querySelector(".snip-ledger-stream");
-                        var currentStream = document.querySelector(".snip-ledger-stream");
-
-                        if (newComments && currentStream) {
-                            currentStream.innerHTML = newComments.innerHTML;
-                        } else if (newComments && !currentStream) {
-                            var streamWrap = document.querySelector(".snip-ledger-body");
-                            if (streamWrap) streamWrap.appendChild(newComments);
-                        }
-
-                        localizeTimestamps();
-                        var latestEntry = document.querySelector(".snip-ledger-stream > li:first-child");
-                        if (latestEntry) {
-                            latestEntry.classList.add("snip-entry-flash");
-                            setTimeout(function() { latestEntry.classList.remove("snip-entry-flash"); }, 2000);
-                        }
-
-                        commentTextarea.value = "";
-                        if (submitBtn) {
-                            submitBtn.disabled = false;
-                            submitBtn.value = "Send Dispatch ↵";
-                        }
-                    })
-                    .catch(function(err) {
-                        console.error("Error submitting dispatch:", err);
-                        if (submitBtn) {
-                            submitBtn.disabled = false;
-                            submitBtn.value = "Send Dispatch ↵";
-                        }
-                    });
-                });
-            });
-            '
+        $commentdata = array(
+            'comment_post_ID'      => $comment_post_ID,
+            'comment_author'       => $author,
+            'comment_author_email' => $email,
+            'comment_content'      => $comment_content,
+            'comment_type'         => 'comment',
+            'comment_parent'       => $comment_parent,
+            'user_id'              => $user_id,
+            'comment_approved'     => 1, // Auto-approve field notes
         );
+
+        $comment_id = wp_insert_comment( $commentdata );
+
+        if ( ! $comment_id ) {
+            wp_send_json_error( array( 'message' => __( 'Failed to log field note.', 'analogues-snips' ) ) );
+        }
+
+        // Store custom callsign flag in comment meta
+        if ( $is_custom_alias ) {
+            update_comment_meta( $comment_id, '_snip_is_custom_alias', '1' );
+        }
+
+        $comment = get_comment( $comment_id );
+
+        ob_start();
+        $depth = ( $comment_parent > 0 ) ? 2 : 1;
+        $this->render_ledger_comment_item( $comment, array(), $depth );
+        $html = ob_get_clean();
+
+        wp_send_json_success( array(
+            'comment_id' => $comment_id,
+            'parent_id'  => $comment_parent,
+            'html'       => $html,
+        ) );
     }
 
     public function register_post_type() {
@@ -235,21 +183,23 @@ class Snips_Telegrams {
         $windows = isset( $options['dispatch_windows'] ) ? $options['dispatch_windows'] : array();
         $now     = time();
 
-        // Check if Slot 1 expired and auto-shift
-        if ( ! empty( $windows[1]['end'] ) && strtotime( $windows[1]['end'] ) < $now ) {
-            $windows[0] = $windows[1];
-            $windows[1] = isset( $windows[2] ) ? $windows[2] : array( 'telegram_id' => '', 'start' => '', 'end' => '' );
-            $windows[2] = isset( $windows[3] ) ? $windows[3] : array( 'telegram_id' => '', 'start' => '', 'end' => '' );
-            $windows[3] = array( 'telegram_id' => '', 'start' => '', 'end' => '' );
+        // Slot 1 expiration
+        if ( ! empty( $windows[1]['end'] ) ) {
+            $end_timestamp = strtotime( $windows[1]['end'] . ' 23:59:59' );
+            if ( $end_timestamp < $now ) {
+                $windows[0] = $windows[1];
+                $windows[1] = isset( $windows[2] ) ? $windows[2] : array( 'telegram_id' => '', 'start' => '', 'end' => '' );
+                $windows[2] = isset( $windows[3] ) ? $windows[3] : array( 'telegram_id' => '', 'start' => '', 'end' => '' );
+                $windows[3] = array( 'telegram_id' => '', 'start' => '', 'end' => '' );
 
-            $options['dispatch_windows'] = $windows;
-            update_option( 'snips_settings', $options );
+                $options['dispatch_windows'] = $windows;
+                update_option( 'snips_settings', $options );
+            }
         }
 
-        // Active scheduled window (Slot 1)
         if ( ! empty( $windows[1]['telegram_id'] ) && ! empty( $windows[1]['start'] ) && ! empty( $windows[1]['end'] ) ) {
-            $start = strtotime( $windows[1]['start'] );
-            $end   = strtotime( $windows[1]['end'] );
+            $start = strtotime( $windows[1]['start'] . ' 00:00:00' );
+            $end   = strtotime( $windows[1]['end'] . ' 23:59:59' );
 
             if ( $now >= $start && $now <= $end ) {
                 $post = get_post( intval( $windows[1]['telegram_id'] ) );
@@ -261,14 +211,13 @@ class Snips_Telegrams {
                     return array(
                         'post'        => $post,
                         'is_overtime' => false,
-                        'status_text' => sprintf( '%dd %dh remaining', $days, $hours ),
+                        'status_text' => ( $days > 0 ) ? sprintf( '%dd %dh remaining', $days, $hours ) : sprintf( '%dh remaining', $hours ),
                         'color_class' => 'snip-status-active',
                     );
                 }
             }
         }
 
-        // Indefinite Open Forum Fallback
         $latest = new WP_Query( array(
             'post_type'      => 'telegram',
             'post_status'    => 'publish',
@@ -280,7 +229,7 @@ class Snips_Telegrams {
             return array(
                 'post'        => $latest->posts[0],
                 'is_overtime' => true,
-                'status_text' => 'INDEFINITE // OPEN FORUM',
+                'status_text' => 'OPEN FORUM',
                 'color_class' => 'snip-status-overtime',
             );
         }
@@ -324,30 +273,66 @@ class Snips_Telegrams {
         return sprintf( '<span class="snip-stats-pill">%d %s</span>', $count, _n( 'Field Note Logged', 'Field Notes Logged', $count, 'analogues-snips' ) );
     }
 
-    public function render_ledger_comment_item( $comment, $args, $depth ) {
+    public function get_callsign_badge_data( $comment ) {
+        $user_id         = intval( $comment->user_id );
+        $is_custom_alias = get_comment_meta( $comment->comment_ID, '_snip_is_custom_alias', true );
+        $comment_count   = 0;
+
+        if ( ! empty( $comment->comment_author_email ) ) {
+            $comment_count = get_comments( array(
+                'author_email' => $comment->comment_author_email,
+                'count'        => true,
+                'status'       => 'approve',
+            ) );
+        }
+
+        if ( $user_id > 0 ) {
+            if ( '1' === $is_custom_alias ) {
+                return array(
+                    'class' => 'snip-callsign-alias',
+                    'label' => 'ALIAS',
+                );
+            }
+            return array(
+                'class' => 'snip-callsign-registered',
+                'label' => 'VERIFIED',
+            );
+        }
+
+        if ( $comment_count >= 3 ) {
+            return array(
+                'class' => 'snip-callsign-frequent',
+                'label' => 'FREQUENT',
+            );
+        }
+
+        return array(
+            'class' => 'snip-callsign-guest',
+            'label' => 'GUEST',
+        );
+    }
+
+    public function render_ledger_comment_item( $comment, $args = array(), $depth = 1 ) {
         $comment_id = $comment->comment_ID;
         $author     = get_comment_author( $comment_id );
         $utc_time   = get_comment_date( 'c', $comment_id );
         $content    = get_comment_text( $comment_id );
+        $badge      = $this->get_callsign_badge_data( $comment );
         ?>
-        <li id="comment-<?php echo esc_attr( $comment_id ); ?>" class="snip-ledger-entry">
+        <li id="comment-<?php echo esc_attr( $comment_id ); ?>" class="snip-ledger-entry depth-<?php echo esc_attr( $depth ); ?>">
             <div class="snip-entry-header">
                 <span class="snip-entry-author"><?php echo esc_html( $author ); ?></span>
+                <span class="snip-badge-callsign <?php echo esc_attr( $badge['class'] ); ?>"><?php echo esc_html( $badge['label'] ); ?></span>
                 <span class="snip-entry-separator">/</span>
                 <time class="snip-ledger-time" datetime="<?php echo esc_attr( $utc_time ); ?>"><?php echo esc_html( get_comment_date( 'M j, Y g:i A', $comment_id ) ); ?></time>
                 <span class="snip-entry-reply-link">
-                    <?php
-                    comment_reply_link( array_merge( $args, array(
-                        'depth'     => $depth,
-                        'max_depth' => $args['max_depth'],
-                        'reply_text'=> 'reply',
-                    ) ) );
-                    ?>
+                    <button type="button" class="snip-reply-btn" data-id="<?php echo esc_attr( $comment_id ); ?>" data-author="<?php echo esc_attr( $author ); ?>">reply</button>
                 </span>
             </div>
             <div class="snip-entry-content">
                 <?php echo wp_kses_post( $content ); ?>
             </div>
+        </li>
         <?php
     }
 
@@ -379,6 +364,12 @@ class Snips_Telegrams {
             'order'   => 'ASC',
         ) );
 
+        $current_user = wp_get_current_user();
+        $is_logged_in = is_user_logged_in();
+
+        $default_author = $is_logged_in ? $current_user->display_name : '';
+        $default_email  = $is_logged_in ? $current_user->user_email : '';
+
         ob_start();
         ?>
         <div class="snip-field-ledger-wrapper">
@@ -404,7 +395,7 @@ class Snips_Telegrams {
                     </div>
 
                     <div class="snip-ledger-actions">
-                        <a href="#respond" class="snip-btn-field-note">
+                        <a href="#snip-composer-dock" class="snip-btn-field-note">
                             <?php echo esc_html( $button_text ); ?>
                         </a>
                         <span class="snip-ledger-footnote"><?php echo esc_html( $footer_note ); ?></span>
@@ -413,44 +404,47 @@ class Snips_Telegrams {
 
                 <!-- Dispatches Stream Feed -->
                 <div class="snip-ledger-body">
-                    <?php if ( ! empty( $comments ) ) : ?>
-                        <ul class="snip-ledger-stream">
-                            <?php
+                    <ul class="snip-ledger-stream" style="<?php echo empty( $comments ) ? 'display: none;' : ''; ?>">
+                        <?php
+                        if ( ! empty( $comments ) ) {
                             wp_list_comments( array(
                                 'callback' => array( $this, 'render_ledger_comment_item' ),
                                 'style'    => 'ul',
                             ), $comments );
-                            ?>
-                        </ul>
-                    <?php else : ?>
-                        <div class="snip-ledger-empty-note">
-                            <span>No dispatches recorded yet. Log the first field note below.</span>
-                        </div>
-                    <?php endif; ?>
+                        }
+                        ?>
+                    </ul>
+                    <div class="snip-ledger-empty-note" style="<?php echo ! empty( $comments ) ? 'display: none;' : ''; ?>">
+                        <span>No dispatches recorded yet. Log the first field note below.</span>
+                    </div>
                 </div>
 
-                <!-- Flush Composer Dock -->
-                <div id="respond" class="snip-ledger-dock">
-                    <?php
-                    $commenter = wp_get_current_commenter();
-                    $req       = get_option( 'require_name_email' );
-                    $aria_req  = ( $req ? " aria-required='true'" : '' );
+                <!-- Anchor for Root Composer Mount -->
+                <div id="snip-dock-root-anchor">
+                    <div id="snip-composer-dock" class="snip-ledger-dock">
+                        <div id="snip-reply-banner" class="snip-reply-context-banner" style="display: none;">
+                            <span>Replying to <strong id="snip-reply-target-author"></strong></span>
+                            <button type="button" id="snip-cancel-reply-btn">Cancel [esc]</button>
+                        </div>
 
-                    comment_form( array(
-                        'title_reply'          => '',
-                        'title_reply_to'       => __( 'Replying to dispatch', 'analogues-snips' ),
-                        'cancel_reply_link'    => __( 'Cancel', 'analogues-snips' ),
-                        'label_submit'         => __( 'Send Dispatch ↵', 'analogues-snips' ),
-                        'class_submit'         => 'snip-btn-dispatch',
-                        'comment_notes_before' => '',
-                        'comment_notes_after'  => '',
-                        'comment_field'        => '<div class="snip-dock-input-wrap"><span class="snip-dock-caret">></span><textarea id="comment" name="comment" rows="2" placeholder="Record a field note..." required></textarea></div>',
-                        'fields'               => array(
-                            'author' => '<div class="snip-dock-fields"><input id="author" name="author" type="text" value="' . esc_attr( $commenter['comment_author'] ) . '" placeholder="Callsign / Name' . ( $req ? ' *' : '' ) . '" ' . $aria_req . ' />',
-                            'email'  => '<input id="email" name="email" type="email" value="' . esc_attr( $commenter['comment_author_email'] ) . '" placeholder="Email (Private)' . ( $req ? ' *' : '' ) . '" ' . $aria_req . ' /></div>',
-                        ),
-                    ), $telegram->ID );
-                    ?>
+                        <form id="snip-custom-commentform">
+                            <div class="snip-dock-input-wrap">
+                                <span class="snip-dock-caret">></span>
+                                <textarea id="snip-comment-text" name="comment" rows="2" placeholder="Record a field note..." required></textarea>
+                            </div>
+
+                            <div class="snip-dock-fields">
+                                <input id="snip-author-input" name="author" type="text" value="<?php echo esc_attr( $default_author ); ?>" placeholder="Callsign / Name *" required />
+                                <input id="snip-email-input" name="email" type="email" value="<?php echo esc_attr( $default_email ); ?>" placeholder="Email (Private) *" <?php echo $is_logged_in ? 'readonly style="opacity: 0.75;"' : 'required'; ?> />
+                            </div>
+
+                            <div class="snip-dock-submit-row">
+                                <input type="hidden" name="comment_post_ID" value="<?php echo esc_attr( $telegram->ID ); ?>" />
+                                <input type="hidden" name="comment_parent" id="snip_comment_parent" value="0" />
+                                <button type="submit" id="snip-submit-btn" class="snip-btn-dispatch">Send Dispatch ↵</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </article>
         </div>

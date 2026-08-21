@@ -1,229 +1,316 @@
+/* ==========================================================================
+   Snips Admin Dashboard & Ops Matrix
+   ========================================================================== */
+
 .snips-admin-wrap {
-  max-width: 980px;
   margin-top: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  position: relative;
+  max-width: 1180px;
 }
 
 .snips-admin-header {
-  margin-bottom: 16px;
-  border-bottom: 1px solid #dcdcde;
-  padding-bottom: 12px;
+  margin-bottom: 20px;
 }
 
 .snips-admin-header h1 {
+  font-size: 1.6rem;
   font-weight: 700;
-  font-size: 1.55rem;
   margin-bottom: 4px;
 }
 
-/* Dashboard Stat Matrix */
+.snips-admin-header .description {
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+/* 1. Tab Bar with Right-Aligned Dev Tab */
+.nav-tab-wrapper.snips-nav-tab-wrapper {
+  display: flex !important;
+  align-items: flex-end;
+  border-bottom: 1px solid #c3c4c7;
+  padding-bottom: 0;
+  margin-bottom: 24px;
+}
+
+.snips-nav-tab-dev {
+  margin-left: auto !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.82rem !important;
+  color: #64748b;
+}
+
+.snips-nav-tab-dev:hover {
+  color: #0f172a;
+}
+
+/* 2. Top Stats Dashboard */
 .snips-dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 16px;
-  margin-top: 16px;
+  margin-bottom: 24px;
 }
 
 .snips-stat-box {
   background: #ffffff;
-  border: 1px solid #ccd0d4;
+  border: 1px solid #dcdcde;
   border-radius: 4px;
-  padding: 16px 20px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .snips-stat-label {
   font-size: 0.72rem;
-  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
   color: #64748b;
-  letter-spacing: 0.04em;
   margin-bottom: 6px;
 }
 
 .snips-stat-value {
   font-size: 1.25rem;
   font-weight: 700;
-  font-family: ui-monospace, monospace;
-}
-
-.snip-text-active {
-  color: #059669;
-}
-
-.snip-text-overtime {
-  color: #0284c7;
+  color: #0f172a;
+  margin-bottom: 4px;
 }
 
 .snips-stat-sub {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #94a3b8;
-  margin-top: 6px;
 }
 
-/* Multi-Slot Conveyor Layout */
+.snip-text-active {
+  color: #059669 !important;
+}
+
+.snip-text-overtime {
+  color: #0284c7 !important;
+}
+
+/* 3. Core Card Containers */
+.snips-card {
+  background: #ffffff;
+  border: 1px solid #dcdcde;
+  border-radius: 4px;
+  padding: 22px 26px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.snips-card h2 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.snips-card .form-table {
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.snips-card .form-table th {
+  padding: 14px 10px 14px 0;
+  font-weight: 600;
+  width: 220px;
+}
+
+.snips-card .form-table td {
+  padding: 12px 10px;
+}
+
+/* 4. Conveyor Slot Cards */
 .snips-slots-container {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 .snips-slot-card {
   border: 1px solid #e2e8f0;
   border-left-width: 4px;
   border-radius: 4px;
-  padding: 16px;
   background: #f8fafc;
+  padding: 16px 20px;
 }
-
-.snips-slot-archive { border-left-color: #64748b; opacity: 0.85; }
-.snips-slot-emerald { border-left-color: #10b981; }
-.snips-slot-cyan    { border-left-color: #06b6d4; }
-.snips-slot-amber   { border-left-color: #f59e0b; }
 
 .snips-slot-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   font-size: 0.88rem;
   color: #1e293b;
 }
 
+.snips-slot-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.snips-slot-archive {
+  border-left-color: #94a3b8;
+}
+.snips-slot-archive .snips-slot-indicator {
+  background: #94a3b8;
+}
+
+.snips-slot-emerald {
+  border-left-color: #10b981;
+}
+.snips-slot-emerald .snips-slot-indicator {
+  background: #10b981;
+}
+
+.snips-slot-cyan {
+  border-left-color: #06b6d4;
+}
+.snips-slot-cyan .snips-slot-indicator {
+  background: #06b6d4;
+}
+
+.snips-slot-amber {
+  border-left-color: #f59e0b;
+}
+.snips-slot-amber .snips-slot-indicator {
+  background: #f59e0b;
+}
+
 .snips-slot-grid {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1.5fr;
-  gap: 14px;
+  grid-template-columns: 2fr 1.2fr 1.2fr;
+  gap: 16px;
 }
 
 .snips-slot-field label {
   display: block;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #64748b;
-  margin-bottom: 4px;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 6px;
 }
 
-.snips-card {
-  background: #ffffff;
-  border: 1px solid #ccd0d4;
-  padding: 22px 26px;
-  margin-top: 16px;
-  margin-bottom: 24px;
-  border-radius: 4px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+.snips-slot-field input,
+.snips-slot-field select {
+  width: 100%;
 }
 
-.snips-card h2 {
-  margin-top: 0;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #f0f0f1;
-  font-size: 1.15rem;
-  font-weight: 600;
+/* 5. Aligned Tables & Clean Module Registry */
+.snips-table-aligned {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
 }
 
-.snips-shortcode-tag {
+.snips-table-aligned th {
+  text-align: left;
+  padding: 10px 12px;
+  background: #f8fafc;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #475569;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.snips-table-aligned td {
+  padding: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.88rem;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.snips-pill {
   display: inline-block;
-  background: #f0f0f1;
-  border: 1px solid #dcdcde;
-  padding: 3px 8px;
-  font-family: ui-monospace, monospace;
-  font-size: 0.85rem;
+  padding: 2px 7px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
   border-radius: 3px;
-  color: #0f172a;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
 }
 
-details.snips-module-accordion {
+/* Clean, standard code tag styling */
+.snips-table-aligned code,
+.snips-shortcode-tag {
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.snips-module-accordion {
   border: 1px solid #e2e8f0;
   border-radius: 4px;
   margin-bottom: 12px;
   background: #ffffff;
-  overflow: hidden;
 }
 
-details.snips-module-accordion summary {
-  padding: 12px 16px;
-  background: #f8fafc;
-  font-weight: 600;
-  font-size: 0.92rem;
-  color: #1e293b;
+.snips-module-accordion summary {
+  padding: 14px 18px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #0f172a;
   cursor: pointer;
-  user-select: none;
-  border-bottom: 1px solid transparent;
+  background: #f8fafc;
+  border-radius: 4px;
+  outline: none;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-details.snips-module-accordion[open] summary {
-  border-bottom-color: #e2e8f0;
+.snips-accordion-content {
+  padding: 16px 18px;
 }
 
-.snips-table-aligned {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 0;
-}
-
-.snips-table-aligned th,
-.snips-table-aligned td {
-  padding: 12px 16px;
-  text-align: left;
-  vertical-align: middle;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.snips-table-aligned tr:last-child td {
-  border-bottom: none;
-}
-
-.snips-table-aligned th {
-  background: #ffffff;
-  color: #64748b;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-weight: 600;
-}
-
-.snips-pill {
-  display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 2px 7px;
-  border-radius: 3px;
-  background: #e2e8f0;
-  color: #475569;
-}
-
-.snips-toast-notification {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background: #09090b;
-  color: #10b981;
-  border: 1px solid #27272a;
-  padding: 10px 18px;
+/* 6. JSON Inspector (Developer Tab) */
+.snips-json-inspector {
+  background: #0c0d10;
+  border: 1px solid #1f1f23;
   border-radius: 4px;
-  font-family: ui-monospace, monospace;
+  padding: 16px;
+  color: #38bdf8;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.8rem;
-  letter-spacing: 0.04em;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-  z-index: 99999;
-  animation: snip-toast-in 0.2s ease-out;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  max-height: 280px;
+  overflow-y: auto;
+  line-height: 1.5;
+}
+
+/* 7. Toast Notification */
+.snips-toast-notification {
+  background: #0f172a;
+  color: #10b981;
+  padding: 12px 18px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+  display: inline-block;
+  transition: opacity 0.3s ease;
 }
 
 .snips-toast-notification.fade-out {
   opacity: 0;
-  transform: translateY(6px);
 }
 
-@keyframes snip-toast-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+@media (max-width: 782px) {
+  .snips-slot-grid {
+    grid-template-columns: 1fr;
+  }
 }

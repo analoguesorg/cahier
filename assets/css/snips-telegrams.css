@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Snips Telegrams Card & Integrated Field Notes
+   Snips Telegrams Card & Integrated Field Ledger
    ========================================================================== */
 
 .snip-field-ledger-wrapper {
@@ -19,9 +19,10 @@
 
 /* 2. Prompt Section */
 .snip-ledger-prompt {
-  padding: 34px 36px 20px 36px;
+  padding: 30px 32px 18px 32px;
 }
 
+/* Fluid Mobile-Responsive Header Row */
 .snip-ledger-kicker {
   display: flex;
   align-items: center;
@@ -30,14 +31,24 @@
   margin-bottom: 18px;
   font-family: var(--snip-global-font, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 0.72rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
+  flex-wrap: wrap;
 }
 
 .snip-kicker-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.snip-kicker-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .snip-ledger-badge {
@@ -46,20 +57,22 @@
   font-weight: 800;
   padding: 2px 6px;
   border-radius: 3px;
-  display: inline-block;
+  white-space: nowrap;
 }
 
 .snip-ledger-title {
   color: #71717a;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .snip-ledger-date {
   color: #52525b;
+  white-space: nowrap;
 }
 
-/* Right-Justified Cadence Windows */
-.snip-kicker-right .snip-cadence-badge {
+/* Right-Justified Cadence Pill */
+.snip-cadence-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -68,6 +81,7 @@
   padding: 3px 8px;
   border-radius: 3px;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 /* Active State (Emerald) */
@@ -99,6 +113,7 @@
   height: 6px;
   border-radius: 50%;
   display: inline-block;
+  flex-shrink: 0;
 }
 
 @keyframes snip-pulse-green {
@@ -117,38 +132,38 @@
 .snip-ledger-content h2,
 .snip-ledger-content h3 {
   color: #ffffff;
-  font-size: 1.45rem;
+  font-size: 1.35rem;
   font-weight: 700;
   line-height: 1.35;
-  margin: 0 0 14px 0;
+  margin: 0 0 12px 0;
 }
 
 .snip-ledger-content p {
   color: #a1a1aa;
-  font-size: 0.94rem;
+  font-size: 0.92rem;
   line-height: 1.6;
-  margin: 0 0 18px 0;
+  margin: 0 0 16px 0;
 }
 
 /* 3. Action Bar */
 .snip-ledger-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding-bottom: 22px;
+  gap: 14px;
+  padding-bottom: 20px;
   border-bottom: 1px solid #18191c;
+  flex-wrap: wrap;
 }
 
-/* Crisp Architectural Action Button */
 .snip-btn-field-note {
   display: inline-flex;
   align-items: center;
   background-color: #1e2024;
   color: #ffffff;
   border: 1px solid #3f3f46;
-  padding: 7px 16px;
+  padding: 6px 14px;
   border-radius: 3px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   font-family: var(--snip-global-font, ui-monospace, monospace);
   letter-spacing: 0.02em;
@@ -164,15 +179,15 @@
 
 .snip-ledger-footnote {
   color: #71717a;
-  font-family: var(--snip-global-font, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
+  font-family: var(--snip-global-font, ui-monospace, monospace);
+  font-size: 0.74rem;
+  letter-spacing: 0.03em;
 }
 
 /* 4. Stream Feed List */
 .snip-ledger-body {
-  padding: 12px 36px;
-  max-height: 460px;
+  padding: 10px 32px;
+  max-height: 480px;
   overflow-y: auto;
 }
 
@@ -222,11 +237,48 @@
   margin-bottom: 5px;
   font-family: var(--snip-global-font, ui-monospace, monospace);
   font-size: 0.72rem;
+  flex-wrap: wrap;
 }
 
 .snip-entry-author {
   color: #f4f4f5;
   font-weight: 700;
+}
+
+/* Callsign Badges */
+.snip-badge-callsign {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 1px 5px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  margin-left: 2px;
+}
+
+.snip-callsign-registered {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.snip-callsign-alias {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.snip-callsign-frequent {
+  background: rgba(6, 182, 212, 0.15);
+  color: #06b6d4;
+  border: 1px solid rgba(6, 182, 212, 0.35);
+}
+
+.snip-callsign-guest {
+  background: rgba(100, 116, 139, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(100, 116, 139, 0.25);
 }
 
 .snip-entry-separator {
@@ -238,24 +290,27 @@
   display: inline-block;
 }
 
-/* Architectural Inline Reply Link */
+/* Custom Reply Toggle Button */
 .snip-entry-reply-link {
   margin-left: 4px;
 }
 
-.snip-entry-reply-link a {
+.snip-reply-btn {
+  background: transparent;
   color: #a1a1aa;
-  text-decoration: none;
+  border: 1px solid #27272a;
+  border-radius: 3px;
+  font-family: var(--snip-global-font, ui-monospace, monospace);
   font-size: 0.68rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   padding: 2px 7px;
-  border: 1px solid #27272a;
-  border-radius: 3px;
+  cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.snip-entry-reply-link a:hover {
+.snip-reply-btn:hover,
+.snip-reply-btn.snip-btn-active {
   color: #ffffff;
   border-color: #52525b;
   background: #18191c;
@@ -268,6 +323,7 @@
   margin: 0;
 }
 
+/* Threaded Comments */
 .snip-ledger-card .children {
   list-style: none;
   padding-left: 18px;
@@ -282,26 +338,39 @@
   font-style: italic;
 }
 
-/* 5. Inset Command-Line Composer Dock */
+/* 5. Custom Integrated Composer Dock */
 .snip-ledger-dock {
   background: #09090b;
   border-top: 1px solid #18191c;
-  padding: 18px 36px 22px 36px;
+  padding: 16px 32px 20px 32px;
 }
 
-.snip-ledger-dock .comment-reply-title {
+.snip-ledger-entry .snip-ledger-dock {
+  margin-top: 12px;
+  border: 1px solid #27272a;
+  border-radius: 4px;
+  padding: 14px 16px;
+  background: #0d0e12;
+}
+
+.snip-reply-context-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #a1a1aa;
-  font-size: 0.78rem;
-  margin: 0 0 10px 0;
+  margin-bottom: 10px;
   font-family: var(--snip-global-font, ui-monospace, monospace);
+  font-size: 0.75rem;
+  color: #a1a1aa;
 }
 
-.snip-ledger-dock #cancel-comment-reply-link {
+.snip-reply-context-banner button {
+  background: transparent;
+  border: none;
   color: #ef4444;
+  cursor: pointer;
+  font-size: 0.72rem;
   text-decoration: underline;
+  padding: 0;
 }
 
 .snip-dock-input-wrap {
@@ -371,11 +440,11 @@
   border-color: #52525b;
 }
 
-.snip-ledger-dock .form-submit {
+.snip-dock-submit-row {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin: 10px 0 0 0;
+  margin-top: 10px;
 }
 
 .snip-btn-dispatch {
@@ -397,7 +466,7 @@
   border-color: #71717a;
 }
 
-/* Clickable Shortcode Cadence Pill (Single Dot) */
+/* Standalone Shortcodes */
 .snip-cadence-pill {
   display: inline-flex;
   align-items: center;
@@ -428,4 +497,28 @@
   padding: 4px 10px;
   border-radius: 3px;
   text-transform: uppercase;
+}
+
+/* Mobile Breakpoint Refinements */
+@media (max-width: 600px) {
+  .snip-ledger-prompt {
+    padding: 20px 20px 14px 20px;
+  }
+  .snip-ledger-body {
+    padding: 10px 20px;
+  }
+  .snip-ledger-dock {
+    padding: 14px 20px 18px 20px;
+  }
+  .snip-dock-fields {
+    flex-direction: column;
+  }
+  .snip-ledger-kicker {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .snip-kicker-left {
+    gap: 8px;
+  }
 }
