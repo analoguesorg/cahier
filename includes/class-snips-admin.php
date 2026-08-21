@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Configuration & Telegrams Multi-Window Ops Dashboard
+ * Admin Configuration & Module Settings
  *
  * @package Analogues_Snips
  */
@@ -94,10 +94,10 @@ class Snips_Admin {
         add_settings_field( 'telegram_footer_note', __( 'Footnote Copy', 'analogues-snips' ), array( $this, 'render_text_field' ), 'snips-settings-telegrams', 'snips_telegrams_section', array( 'key' => 'telegram_footer_note', 'placeholder' => 'Zero-login required • Open discussion' ) );
 
         // Section: Discord Settings
-        add_settings_section( 'snips_discord_section', __( 'Discord Live Chat & Status Rules', 'analogues-snips' ), null, 'snips-settings' );
-        add_settings_field( 'default_discord_server', __( 'Default Server ID', 'analogues-snips' ), array( $this, 'render_text_field' ), 'snips-settings', 'snips_discord_section', array( 'key' => 'default_discord_server', 'placeholder' => 'Enter Discord Server ID' ) );
-        add_settings_field( 'threshold_green_hours', __( 'Active Threshold (Hours)', 'analogues-snips' ), array( $this, 'render_number_field' ), 'snips-settings', 'snips_discord_section', array( 'key' => 'threshold_green_hours', 'min' => 1, 'max' => 168 ) );
-        add_settings_field( 'threshold_yellow_hours', __( 'Idle Threshold (Hours)', 'analogues-snips' ), array( $this, 'render_number_field' ), 'snips-settings', 'snips_discord_section', array( 'key' => 'threshold_yellow_hours', 'min' => 1, 'max' => 336 ) );
+        add_settings_section( 'snips_discord_section', __( 'Discord Live Chat & Status Rules', 'analogues-snips' ), null, 'snips-settings-discord' );
+        add_settings_field( 'default_discord_server', __( 'Default Server ID', 'analogues-snips' ), array( $this, 'render_text_field' ), 'snips-settings-discord', 'snips_discord_section', array( 'key' => 'default_discord_server', 'placeholder' => 'Enter Discord Server ID' ) );
+        add_settings_field( 'threshold_green_hours', __( 'Active Threshold (Hours)', 'analogues-snips' ), array( $this, 'render_number_field' ), 'snips-settings-discord', 'snips_discord_section', array( 'key' => 'threshold_green_hours', 'min' => 1, 'max' => 168 ) );
+        add_settings_field( 'threshold_yellow_hours', __( 'Idle Threshold (Hours)', 'analogues-snips' ), array( $this, 'render_number_field' ), 'snips-settings-discord', 'snips_discord_section', array( 'key' => 'threshold_yellow_hours', 'min' => 1, 'max' => 336 ) );
 
         // Section: Typography
         add_settings_section( 'snips_typography_section', __( 'Font Configuration', 'analogues-snips' ), null, 'snips-settings-typo' );
@@ -126,9 +126,15 @@ class Snips_Admin {
     }
 
     public function sanitize_settings( $input ) {
-        $sanitized = array();
         $defaults  = $this->get_default_settings();
+        $existing  = get_option( self::OPTION_NAME, $defaults );
+        $sanitized = is_array( $existing ) ? $existing : $defaults;
 
+        if ( ! is_array( $input ) ) {
+            return $sanitized;
+        }
+
+        // 1. Sanitize Dispatch Windows Conveyor
         if ( isset( $input['dispatch_windows'] ) && is_array( $input['dispatch_windows'] ) ) {
             $sanitized['dispatch_windows'] = array();
             for ( $i = 0; $i <= 3; $i++ ) {
@@ -138,18 +144,15 @@ class Snips_Admin {
                     'end'         => isset( $input['dispatch_windows'][ $i ]['end'] ) ? sanitize_text_field( $input['dispatch_windows'][ $i ]['end'] ) : '',
                 );
             }
-        } else {
-            $sanitized['dispatch_windows'] = $defaults['dispatch_windows'];
         }
 
+        // 2. Merge and Sanitize other fields
         foreach ( $defaults as $key => $val ) {
             if ( 'dispatch_windows' === $key ) {
                 continue;
             }
-            if ( isset( $input[ $key ] ) ) {
+            if ( array_key_exists( $key, $input ) ) {
                 $sanitized[ $key ] = is_numeric( $input[ $key ] ) ? intval( $input[ $key ] ) : sanitize_text_field( $input[ $key ] );
-            } else {
-                $sanitized[ $key ] = $val;
             }
         }
 
@@ -251,36 +254,36 @@ class Snips_Admin {
                 <a href="#tab-registry" class="nav-tab"><?php esc_html_e( 'Module Registry', 'analogues-snips' ); ?></a>
             </nav>
 
-            <!-- TAB 1: Telegrams Multi-Window Ops -->
-            <div id="tab-telegrams" class="snips-tab-content">
-                <div class="snips-dashboard-grid">
-                    <div class="snips-stat-box">
-                        <span class="snips-stat-label"><?php esc_html_e( 'Active Ledger', 'analogues-snips' ); ?></span>
-                        <span class="snips-stat-value"><?php echo ( $active_data && $active_data['post'] ) ? esc_html( get_the_title( $active_data['post'] ) ) : 'None'; ?></span>
-                        <span class="snips-stat-sub"><?php echo ( $active_data && $active_data['post'] ) ? esc_html( get_the_date( 'M j, Y', $active_data['post'] ) ) : 'Publish a telegram dispatch'; ?></span>
-                    </div>
+            <form method="post" action="options.php">
+                <?php settings_fields( self::OPTION_GROUP ); ?>
 
-                    <div class="snips-stat-box">
-                        <span class="snips-stat-label"><?php esc_html_e( 'Current Window State', 'analogues-snips' ); ?></span>
-                        <span class="snips-stat-value <?php echo ( $active_data && $active_data['is_overtime'] ) ? 'snip-text-overtime' : 'snip-text-active'; ?>">
-                            <?php echo $active_data ? esc_html( $active_data['status_text'] ) : 'Standby'; ?>
-                        </span>
-                        <span class="snips-stat-sub">
-                            <?php echo ( $active_data && $active_data['is_overtime'] ) ? esc_html__( 'No schedule selected: running continuously on latest dispatch', 'analogues-snips' ) : esc_html__( 'Currently in scheduled dispatch window', 'analogues-snips' ); ?>
-                        </span>
-                    </div>
+                <!-- TAB 1: Telegrams Multi-Window Ops -->
+                <div id="tab-telegrams" class="snips-tab-content">
+                    <div class="snips-dashboard-grid">
+                        <div class="snips-stat-box">
+                            <span class="snips-stat-label"><?php esc_html_e( 'Active Ledger', 'analogues-snips' ); ?></span>
+                            <span class="snips-stat-value"><?php echo ( $active_data && $active_data['post'] ) ? esc_html( get_the_title( $active_data['post'] ) ) : 'None'; ?></span>
+                            <span class="snips-stat-sub"><?php echo ( $active_data && $active_data['post'] ) ? esc_html( get_the_date( 'M j, Y', $active_data['post'] ) ) : 'Publish a telegram dispatch'; ?></span>
+                        </div>
 
-                    <div class="snips-stat-box">
-                        <span class="snips-stat-label"><?php esc_html_e( 'Pipeline Depth', 'analogues-snips' ); ?></span>
-                        <span class="snips-stat-value"><?php echo count( $all_telegrams ); ?> Dispatches</span>
-                        <span class="snips-stat-sub">
-                            <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=telegram' ) ); ?>" class="button button-small" style="margin-top: 4px;"><?php esc_html_e( '+ Draft New Telegram', 'analogues-snips' ); ?></a>
-                        </span>
-                    </div>
-                </div>
+                        <div class="snips-stat-box">
+                            <span class="snips-stat-label"><?php esc_html_e( 'Current Window State', 'analogues-snips' ); ?></span>
+                            <span class="snips-stat-value <?php echo ( $active_data && $active_data['is_overtime'] ) ? 'snip-text-overtime' : 'snip-text-active'; ?>">
+                                <?php echo $active_data ? esc_html( $active_data['status_text'] ) : 'Standby'; ?>
+                            </span>
+                            <span class="snips-stat-sub">
+                                <?php echo ( $active_data && $active_data['is_overtime'] ) ? esc_html__( 'No schedule selected: running continuously on latest dispatch', 'analogues-snips' ) : esc_html__( 'Currently in scheduled dispatch window', 'analogues-snips' ); ?>
+                            </span>
+                        </div>
 
-                <form method="post" action="options.php">
-                    <?php settings_fields( self::OPTION_GROUP ); ?>
+                        <div class="snips-stat-box">
+                            <span class="snips-stat-label"><?php esc_html_e( 'Pipeline Depth', 'analogues-snips' ); ?></span>
+                            <span class="snips-stat-value"><?php echo count( $all_telegrams ); ?> Dispatches</span>
+                            <span class="snips-stat-sub">
+                                <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=telegram' ) ); ?>" class="button button-small" style="margin-top: 4px;"><?php esc_html_e( '+ Draft New Telegram', 'analogues-snips' ); ?></a>
+                            </span>
+                        </div>
+                    </div>
 
                     <div class="snips-card">
                         <h2><?php esc_html_e( 'Rotating Dispatch Conveyor (4 Slot Sequence)', 'analogues-snips' ); ?></h2>
@@ -361,40 +364,32 @@ class Snips_Admin {
                     <div class="snips-card">
                         <h2><?php esc_html_e( 'Ledger Defaults & Timing Format', 'analogues-snips' ); ?></h2>
                         <?php do_settings_sections( 'snips-settings-telegrams' ); ?>
-                        <?php submit_button( __( 'Save All Telegram Settings', 'analogues-snips' ) ); ?>
                     </div>
-                </form>
-            </div>
-
-            <!-- TAB 2: Discord -->
-            <div id="tab-discord" class="snips-tab-content" style="display: none;">
-                <div class="snips-card">
-                    <h2><?php esc_html_e( 'Discord Live Chat & Status Rules', 'analogues-snips' ); ?></h2>
-                    <form method="post" action="options.php">
-                        <?php
-                        settings_fields( self::OPTION_GROUP );
-                        do_settings_sections( 'snips-settings' );
-                        submit_button( __( 'Save Discord Settings', 'analogues-snips' ) );
-                        ?>
-                    </form>
                 </div>
-            </div>
 
-            <!-- TAB 3: Typography -->
-            <div id="tab-typography" class="snips-tab-content" style="display: none;">
-                <div class="snips-card">
-                    <h2><?php esc_html_e( 'Font Family Hierarchy', 'analogues-snips' ); ?></h2>
-                    <form method="post" action="options.php">
-                        <?php
-                        settings_fields( self::OPTION_GROUP );
-                        do_settings_sections( 'snips-settings-typo' );
-                        submit_button( __( 'Save Typography', 'analogues-snips' ) );
-                        ?>
-                    </form>
+                <!-- TAB 2: Discord -->
+                <div id="tab-discord" class="snips-tab-content" style="display: none;">
+                    <div class="snips-card">
+                        <h2><?php esc_html_e( 'Discord Live Chat & Status Rules', 'analogues-snips' ); ?></h2>
+                        <?php do_settings_sections( 'snips-settings-discord' ); ?>
+                    </div>
                 </div>
-            </div>
 
-            <!-- TAB 4: Module Registry -->
+                <!-- TAB 3: Typography -->
+                <div id="tab-typography" class="snips-tab-content" style="display: none;">
+                    <div class="snips-card">
+                        <h2><?php esc_html_e( 'Font Family Hierarchy', 'analogues-snips' ); ?></h2>
+                        <?php do_settings_sections( 'snips-settings-typo' ); ?>
+                    </div>
+                </div>
+
+                <!-- Submit Button for Active Form -->
+                <div style="margin-top: 16px;">
+                    <?php submit_button( __( 'Save Snips Configuration', 'analogues-snips' ) ); ?>
+                </div>
+            </form>
+
+            <!-- TAB 4: Module Registry (Informational) -->
             <div id="tab-registry" class="snips-tab-content" style="display: none;">
                 <div class="snips-card">
                     <h2><?php esc_html_e( 'Registered Modules & Shortcodes', 'analogues-snips' ); ?></h2>

@@ -3,16 +3,19 @@
  * Plugin Name: Snips
  * Plugin URI:  https://www.analogues.org/development
  * Description: Custom components and modifications for the analogues.org website.
- * Version:     1.0.3
+ * Version:     1.0.4
  * Author:      Sahil Nawab
  * Text Domain: analogues-snips
+ *
+ * GitHub Plugin URI: https://github.com/analoguesorg/snips
+ * Primary Branch:    main
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'SNIPS_VERSION', '1.0.3' );
+define( 'SNIPS_VERSION', '1.0.4' );
 define( 'SNIPS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SNIPS_URL', plugin_dir_url( __FILE__ ) );
 
