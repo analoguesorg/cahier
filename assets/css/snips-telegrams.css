@@ -1,0 +1,431 @@
+/* ==========================================================================
+   Snips Telegrams Card & Integrated Field Notes
+   ========================================================================== */
+
+.snip-field-ledger-wrapper {
+  margin: 32px 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* 1. Main Slate Card */
+.snip-ledger-card {
+  background-color: #0c0d10;
+  border: 1px solid #1f1f23;
+  border-radius: 6px;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 2. Prompt Section */
+.snip-ledger-prompt {
+  padding: 34px 36px 20px 36px;
+}
+
+.snip-ledger-kicker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  font-family: var(--snip-global-font, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.snip-kicker-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.snip-ledger-badge {
+  background-color: #ffffff;
+  color: #000000;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.snip-ledger-title {
+  color: #71717a;
+  font-weight: 600;
+}
+
+.snip-ledger-date {
+  color: #52525b;
+}
+
+/* Right-Justified Cadence Windows */
+.snip-kicker-right .snip-cadence-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+/* Active State (Emerald) */
+.snip-status-active {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid #059669;
+}
+.snip-status-active .snip-pulse-dot {
+  background-color: #10b981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: snip-pulse-green 2s infinite cubic-bezier(0.66, 0, 0, 1);
+}
+
+/* Overtime / Open Forum State (Aviation Blue) */
+.snip-status-overtime {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid #0284c7;
+}
+.snip-status-overtime .snip-pulse-dot {
+  background-color: #38bdf8;
+  box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
+  animation: snip-pulse-blue 2s infinite cubic-bezier(0.66, 0, 0, 1);
+}
+
+.snip-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+@keyframes snip-pulse-green {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes snip-pulse-blue {
+  0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
+  70% { box-shadow: 0 0 0 5px rgba(56, 189, 248, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+}
+
+.snip-ledger-content h1,
+.snip-ledger-content h2,
+.snip-ledger-content h3 {
+  color: #ffffff;
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0 0 14px 0;
+}
+
+.snip-ledger-content p {
+  color: #a1a1aa;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  margin: 0 0 18px 0;
+}
+
+/* 3. Action Bar */
+.snip-ledger-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #18191c;
+}
+
+/* Crisp Architectural Action Button */
+.snip-btn-field-note {
+  display: inline-flex;
+  align-items: center;
+  background-color: #1e2024;
+  color: #ffffff;
+  border: 1px solid #3f3f46;
+  padding: 7px 16px;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: var(--snip-global-font, ui-monospace, monospace);
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.snip-btn-field-note:hover {
+  background-color: #27272a;
+  border-color: #71717a;
+  color: #ffffff;
+}
+
+.snip-ledger-footnote {
+  color: #71717a;
+  font-family: var(--snip-global-font, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+/* 4. Stream Feed List */
+.snip-ledger-body {
+  padding: 12px 36px;
+  max-height: 460px;
+  overflow-y: auto;
+}
+
+.snip-ledger-body::-webkit-scrollbar {
+  width: 4px;
+}
+.snip-ledger-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.snip-ledger-body::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 2px;
+}
+
+.snip-ledger-stream {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.snip-ledger-entry {
+  padding: 14px 0;
+  border-bottom: 1px solid #141518;
+  animation: snip-entry-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background 0.4s ease, border-left 0.4s ease;
+}
+
+.snip-ledger-entry:last-child {
+  border-bottom: none;
+}
+
+@keyframes snip-entry-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.snip-entry-flash {
+  background: rgba(16, 185, 129, 0.08);
+  padding-left: 8px;
+  border-left: 2px solid #10b981;
+}
+
+.snip-entry-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+  font-family: var(--snip-global-font, ui-monospace, monospace);
+  font-size: 0.72rem;
+}
+
+.snip-entry-author {
+  color: #f4f4f5;
+  font-weight: 700;
+}
+
+.snip-entry-separator {
+  color: #3f3f46;
+}
+
+.snip-ledger-time {
+  color: #71717a;
+  display: inline-block;
+}
+
+/* Architectural Inline Reply Link */
+.snip-entry-reply-link {
+  margin-left: 4px;
+}
+
+.snip-entry-reply-link a {
+  color: #a1a1aa;
+  text-decoration: none;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border: 1px solid #27272a;
+  border-radius: 3px;
+  transition: all 0.15s ease;
+}
+
+.snip-entry-reply-link a:hover {
+  color: #ffffff;
+  border-color: #52525b;
+  background: #18191c;
+}
+
+.snip-entry-content p {
+  color: #d4d4d8;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.snip-ledger-card .children {
+  list-style: none;
+  padding-left: 18px;
+  margin: 10px 0 0 0;
+  border-left: 2px solid #1f1f23;
+}
+
+.snip-ledger-empty-note {
+  padding: 18px 0;
+  color: #52525b;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* 5. Inset Command-Line Composer Dock */
+.snip-ledger-dock {
+  background: #09090b;
+  border-top: 1px solid #18191c;
+  padding: 18px 36px 22px 36px;
+}
+
+.snip-ledger-dock .comment-reply-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #a1a1aa;
+  font-size: 0.78rem;
+  margin: 0 0 10px 0;
+  font-family: var(--snip-global-font, ui-monospace, monospace);
+}
+
+.snip-ledger-dock #cancel-comment-reply-link {
+  color: #ef4444;
+  text-decoration: underline;
+}
+
+.snip-dock-input-wrap {
+  position: relative;
+  background: #121316;
+  border: 1px solid #27272a;
+  border-radius: 4px;
+  padding: 10px 14px 10px 32px;
+  transition: all 0.25s ease;
+}
+
+.snip-dock-input-wrap:focus-within {
+  border-color: #52525b;
+  box-shadow: 0 0 0 1px #52525b;
+}
+
+.snip-dock-input-wrap.snip-dock-highlight {
+  border-color: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+}
+
+.snip-dock-caret {
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  color: #71717a;
+  font-family: ui-monospace, monospace;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  user-select: none;
+}
+
+.snip-dock-input-wrap textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f4f4f5;
+  font-size: 0.88rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 42px;
+  padding: 0;
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+
+.snip-dock-fields {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.snip-dock-fields input {
+  flex: 1;
+  background: #121316;
+  border: 1px solid #27272a;
+  border-radius: 3px;
+  color: #f4f4f5;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+}
+
+.snip-dock-fields input:focus {
+  outline: none;
+  border-color: #52525b;
+}
+
+.snip-ledger-dock .form-submit {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 10px 0 0 0;
+}
+
+.snip-btn-dispatch {
+  background: #1e2024;
+  color: #ffffff;
+  border: 1px solid #3f3f46;
+  padding: 7px 16px;
+  border-radius: 3px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  font-family: var(--snip-global-font, ui-monospace, monospace);
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.snip-btn-dispatch:hover {
+  background: #27272a;
+  border-color: #71717a;
+}
+
+/* Clickable Shortcode Cadence Pill (Single Dot) */
+.snip-cadence-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--snip-global-font, ui-monospace, monospace);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 3px;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.snip-cadence-pill:hover {
+  opacity: 0.88;
+}
+
+.snip-stats-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--snip-global-font, ui-monospace, monospace);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  background: #141518;
+  color: #f4f4f5;
+  border: 1px solid #27272a;
+  padding: 4px 10px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}

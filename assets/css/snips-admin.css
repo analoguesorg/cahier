@@ -1,0 +1,229 @@
+.snips-admin-wrap {
+  max-width: 980px;
+  margin-top: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  position: relative;
+}
+
+.snips-admin-header {
+  margin-bottom: 16px;
+  border-bottom: 1px solid #dcdcde;
+  padding-bottom: 12px;
+}
+
+.snips-admin-header h1 {
+  font-weight: 700;
+  font-size: 1.55rem;
+  margin-bottom: 4px;
+}
+
+/* Dashboard Stat Matrix */
+.snips-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.snips-stat-box {
+  background: #ffffff;
+  border: 1px solid #ccd0d4;
+  border-radius: 4px;
+  padding: 16px 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+}
+
+.snips-stat-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.snips-stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-family: ui-monospace, monospace;
+}
+
+.snip-text-active {
+  color: #059669;
+}
+
+.snip-text-overtime {
+  color: #0284c7;
+}
+
+.snips-stat-sub {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 6px;
+}
+
+/* Multi-Slot Conveyor Layout */
+.snips-slots-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.snips-slot-card {
+  border: 1px solid #e2e8f0;
+  border-left-width: 4px;
+  border-radius: 4px;
+  padding: 16px;
+  background: #f8fafc;
+}
+
+.snips-slot-archive { border-left-color: #64748b; opacity: 0.85; }
+.snips-slot-emerald { border-left-color: #10b981; }
+.snips-slot-cyan    { border-left-color: #06b6d4; }
+.snips-slot-amber   { border-left-color: #f59e0b; }
+
+.snips-slot-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 0.88rem;
+  color: #1e293b;
+}
+
+.snips-slot-grid {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.5fr;
+  gap: 14px;
+}
+
+.snips-slot-field label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.snips-card {
+  background: #ffffff;
+  border: 1px solid #ccd0d4;
+  padding: 22px 26px;
+  margin-top: 16px;
+  margin-bottom: 24px;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.snips-card h2 {
+  margin-top: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f1;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.snips-shortcode-tag {
+  display: inline-block;
+  background: #f0f0f1;
+  border: 1px solid #dcdcde;
+  padding: 3px 8px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  color: #0f172a;
+}
+
+details.snips-module-accordion {
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+details.snips-module-accordion summary {
+  padding: 12px 16px;
+  background: #f8fafc;
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: #1e293b;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+details.snips-module-accordion[open] summary {
+  border-bottom-color: #e2e8f0;
+}
+
+.snips-table-aligned {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.snips-table-aligned th,
+.snips-table-aligned td {
+  padding: 12px 16px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.snips-table-aligned tr:last-child td {
+  border-bottom: none;
+}
+
+.snips-table-aligned th {
+  background: #ffffff;
+  color: #64748b;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.snips-pill {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.snips-toast-notification {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #09090b;
+  color: #10b981;
+  border: 1px solid #27272a;
+  padding: 10px 18px;
+  border-radius: 4px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  z-index: 99999;
+  animation: snip-toast-in 0.2s ease-out;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.snips-toast-notification.fade-out {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+@keyframes snip-toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
