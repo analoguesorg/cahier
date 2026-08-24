@@ -1,18 +1,28 @@
 <?php
 /**
- * Plugin Name: Snips
- * Plugin URI:  https://www.analogues.org/development
- * Description: Custom components and modifications for the analogues.org website.
- * Version:     1.1.0
- * Author:      Sahil Nawab
- * Text Domain: analogues-snips
+ * Plugin Name:       Snips
+ * Plugin URI:        https://github.com/analoguesorg/snips
+ * Description:       Custom modifications for analogues.org, including 
+ * Version:           1.1.1
+ * Requires at least: 6.0
+ * Requires PHP:      7.4
+ * Author:            Analogues & Sahil Nawab
+ * Author URI:        https://analogues.org/development
+ *
+ * Text Domain:       analogues-snips
+ *
+ * GitHub Plugin URI: analoguesorg/snips
+ * Primary Branch:    main
+ *
+ * @package Analogues-Snips
+ * @version 1.1.1
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'SNIPS_VERSION', '1.1.0' );
+define( 'SNIPS_VERSION', '1.1.1' );
 define( 'SNIPS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SNIPS_URL', plugin_dir_url( __FILE__ ) );
 

@@ -16,9 +16,13 @@ class Snips_Telegrams {
         add_action( 'init', array( $this, 'register_telegram_block' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
-        // Dedicated AJAX comment submission endpoints
+        // AJAX comment handling
         add_action( 'wp_ajax_snips_submit_field_note', array( $this, 'handle_ajax_comment' ) );
         add_action( 'wp_ajax_nopriv_snips_submit_field_note', array( $this, 'handle_ajax_comment' ) );
+
+        // AJAX like / endorsement handling
+        add_action( 'wp_ajax_snips_toggle_comment_like', array( $this, 'handle_toggle_like' ) );
+        add_action( 'wp_ajax_nopriv_snips_toggle_comment_like', array( $this, 'handle_toggle_like' ) );
 
         // Shortcodes
         add_shortcode( 'snip_telegram_countdown', array( $this, 'render_countdown_shortcode' ) );
@@ -70,7 +74,7 @@ class Snips_Telegrams {
             wp_send_json_error( array( 'message' => __( 'Missing required fields.', 'analogues-snips' ) ) );
         }
 
-        $user = wp_get_current_user();
+        $user              = wp_get_current_user();
         $is_user_logged_in = is_user_logged_in();
 
         if ( $is_user_logged_in ) {
@@ -79,7 +83,6 @@ class Snips_Telegrams {
             $email        = $user->user_email;
             $user_id      = $user->ID;
 
-            // Track if user used a custom alias instead of account name
             $is_custom_alias = ( $author !== $user->display_name && $author !== $user->user_login );
         } else {
             $author          = isset( $_POST['author'] ) ? sanitize_text_field( $_POST['author'] ) : 'Guest';
@@ -96,7 +99,7 @@ class Snips_Telegrams {
             'comment_type'         => 'comment',
             'comment_parent'       => $comment_parent,
             'user_id'              => $user_id,
-            'comment_approved'     => 1, // Auto-approve field notes
+            'comment_approved'     => 1,
         );
 
         $comment_id = wp_insert_comment( $commentdata );
@@ -105,7 +108,6 @@ class Snips_Telegrams {
             wp_send_json_error( array( 'message' => __( 'Failed to log field note.', 'analogues-snips' ) ) );
         }
 
-        // Store custom callsign flag in comment meta
         if ( $is_custom_alias ) {
             update_comment_meta( $comment_id, '_snip_is_custom_alias', '1' );
         }
@@ -121,6 +123,32 @@ class Snips_Telegrams {
             'comment_id' => $comment_id,
             'parent_id'  => $comment_parent,
             'html'       => $html,
+        ) );
+    }
+
+    public function handle_toggle_like() {
+        check_ajax_referer( 'snips_field_note_nonce', 'nonce' );
+
+        $comment_id = isset( $_POST['comment_id'] ) ? intval( $_POST['comment_id'] ) : 0;
+        $action     = isset( $_POST['like_action'] ) ? sanitize_text_field( $_POST['like_action'] ) : 'like';
+
+        if ( ! $comment_id ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid dispatch ID.', 'analogues-snips' ) ) );
+        }
+
+        $count = (int) get_comment_meta( $comment_id, '_snip_like_count', true );
+
+        if ( 'like' === $action ) {
+            $count++;
+        } elseif ( 'unlike' === $action && $count > 0 ) {
+            $count--;
+        }
+
+        update_comment_meta( $comment_id, '_snip_like_count', $count );
+
+        wp_send_json_success( array(
+            'comment_id' => $comment_id,
+            'count'      => $count,
         ) );
     }
 
@@ -183,7 +211,6 @@ class Snips_Telegrams {
         $windows = isset( $options['dispatch_windows'] ) ? $options['dispatch_windows'] : array();
         $now     = time();
 
-        // Slot 1 expiration
         if ( ! empty( $windows[1]['end'] ) ) {
             $end_timestamp = strtotime( $windows[1]['end'] . ' 23:59:59' );
             if ( $end_timestamp < $now ) {
@@ -318,6 +345,7 @@ class Snips_Telegrams {
         $utc_time   = get_comment_date( 'c', $comment_id );
         $content    = get_comment_text( $comment_id );
         $badge      = $this->get_callsign_badge_data( $comment );
+        $likes      = (int) get_comment_meta( $comment_id, '_snip_like_count', true );
         ?>
         <li id="comment-<?php echo esc_attr( $comment_id ); ?>" class="snip-ledger-entry depth-<?php echo esc_attr( $depth ); ?>">
             <div class="snip-entry-header">
@@ -325,6 +353,12 @@ class Snips_Telegrams {
                 <span class="snip-badge-callsign <?php echo esc_attr( $badge['class'] ); ?>"><?php echo esc_html( $badge['label'] ); ?></span>
                 <span class="snip-entry-separator">/</span>
                 <time class="snip-ledger-time" datetime="<?php echo esc_attr( $utc_time ); ?>"><?php echo esc_html( get_comment_date( 'M j, Y g:i A', $comment_id ) ); ?></time>
+                <span class="snip-entry-separator">/</span>
+                <button type="button" class="snip-like-btn" data-id="<?php echo esc_attr( $comment_id ); ?>" aria-label="Endorse dispatch" title="Acknowledge dispatch">
+                    <span class="snip-like-icon">▲</span>
+                    <span class="snip-like-count" style="<?php echo $likes > 0 ? '' : 'display: none;'; ?>"><?php echo esc_html( $likes ); ?></span>
+                </button>
+                <span class="snip-entry-separator">/</span>
                 <span class="snip-entry-reply-link">
                     <button type="button" class="snip-reply-btn" data-id="<?php echo esc_attr( $comment_id ); ?>" data-author="<?php echo esc_attr( $author ); ?>">reply</button>
                 </span>
@@ -430,7 +464,7 @@ class Snips_Telegrams {
                         <form id="snip-custom-commentform">
                             <div class="snip-dock-input-wrap">
                                 <span class="snip-dock-caret">></span>
-                                <textarea id="snip-comment-text" name="comment" rows="2" placeholder="Record a field note..." required></textarea>
+                                <textarea id="snip-comment-text" name="comment" rows="1" placeholder="Record a field note..." required></textarea>
                             </div>
 
                             <div class="snip-dock-fields">

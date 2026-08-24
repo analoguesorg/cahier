@@ -1,6 +1,6 @@
 /**
  * Snips Field Ledger Engine
- * Handles timestamp localization, composer focus, toggle replies, and zero-reload AJAX submission.
+ * Handles timestamp localization, auto-expanding composer, smooth docking, inline endorsements with transient pulse animations, and zero-reload AJAX submission.
  */
 document.addEventListener('DOMContentLoaded', function () {
   var config = window.SnipsTelegramsData || {
@@ -9,7 +9,27 @@ document.addEventListener('DOMContentLoaded', function () {
     nonce: '',
   };
 
-  // 1. Timestamp Localization
+  // 1. Auto-Expanding Textarea Engine
+  function autoExpandTextarea(textarea) {
+    if (!textarea) return;
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+
+    if (textarea.scrollHeight > 260) {
+      textarea.style.overflowY = 'auto';
+    } else {
+      textarea.style.overflowY = 'hidden';
+    }
+  }
+
+  var composerTextarea = document.querySelector('#snip-comment-text');
+  if (composerTextarea) {
+    composerTextarea.addEventListener('input', function () {
+      autoExpandTextarea(this);
+    });
+  }
+
+  // 2. Timestamp Localization
   function localizeTimestamps() {
     var times = document.querySelectorAll('.snip-ledger-time[datetime]');
     var now = new Date();
@@ -71,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   localizeTimestamps();
 
-  // 2. Smooth Focus Physics
+  // 3. Smooth Focus Physics
   var leaveBtn = document.querySelector('.snip-btn-field-note');
   if (leaveBtn) {
     leaveBtn.addEventListener('click', function (e) {
@@ -89,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // 3. Reply Toggle Engine
+  // 4. Reply Toggle & Composer Dock
   var composerDock = document.getElementById('snip-composer-dock');
   var rootContainer = document.getElementById('snip-dock-root-anchor');
   var parentInput = document.getElementById('snip_comment_parent');
@@ -102,10 +122,15 @@ document.addEventListener('DOMContentLoaded', function () {
     rootContainer.appendChild(composerDock);
     if (parentInput) parentInput.value = '0';
     if (replyBanner) replyBanner.style.display = 'none';
+
     document.querySelectorAll('.snip-reply-btn').forEach(function (btn) {
       btn.classList.remove('snip-btn-active');
       btn.textContent = 'reply';
     });
+
+    if (composerTextarea) {
+      composerTextarea.style.height = 'auto';
+    }
   }
 
   document.addEventListener('click', function (e) {
@@ -143,8 +168,10 @@ document.addEventListener('DOMContentLoaded', function () {
     replyBtn.classList.add('snip-btn-active');
     replyBtn.textContent = 'close';
 
-    var textarea = composerDock.querySelector('textarea');
-    if (textarea) textarea.focus();
+    if (composerTextarea) {
+      composerTextarea.focus();
+      autoExpandTextarea(composerTextarea);
+    }
   });
 
   if (cancelBtn) {
@@ -160,7 +187,92 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // 4. Zero-Reload AJAX Transmission
+  // 5. Endorsement (▲) Local State & Pulse Animations
+  var likedComments = JSON.parse(
+    localStorage.getItem('snips_liked_dispatches') || '[]'
+  );
+
+  document.addEventListener('click', function (e) {
+    var likeBtn = e.target.closest('.snip-like-btn');
+    if (!likeBtn) return;
+    e.preventDefault();
+
+    var commentId = parseInt(likeBtn.getAttribute('data-id'), 10);
+    var countSpan = likeBtn.querySelector('.snip-like-count');
+    var isLiked = likedComments.indexOf(commentId) !== -1;
+    var action = isLiked ? 'unlike' : 'like';
+
+    // Clear any previous animation classes
+    likeBtn.classList.remove('snip-like-flash', 'snip-unlike-flash');
+    void likeBtn.offsetWidth; // Force CSS reflow
+
+    var currentCount = parseInt(countSpan.textContent, 10) || 0;
+
+    if (action === 'like') {
+      // 1. Trigger Emerald Flash
+      likeBtn.classList.add('snip-like-flash');
+      var nextCount = currentCount + 1;
+      countSpan.textContent = nextCount;
+      countSpan.style.display = 'inline';
+
+      likedComments.push(commentId);
+
+      // Transition back to muted state
+      setTimeout(function () {
+        likeBtn.classList.remove('snip-like-flash');
+      }, 700);
+    } else {
+      // 2. Trigger Crimson Pulse
+      likeBtn.classList.add('snip-unlike-flash');
+      var newCount = Math.max(0, currentCount - 1);
+      countSpan.textContent = newCount;
+      if (newCount === 0) {
+        countSpan.style.display = 'none';
+      }
+
+      likedComments = likedComments.filter(function (id) {
+        return id !== commentId;
+      });
+
+      // Transition back to muted state
+      setTimeout(function () {
+        likeBtn.classList.remove('snip-unlike-flash');
+      }, 700);
+    }
+
+    localStorage.setItem(
+      'snips_liked_dispatches',
+      JSON.stringify(likedComments)
+    );
+
+    // Asynchronous Database Update
+    var formData = new FormData();
+    formData.append('action', 'snips_toggle_comment_like');
+    formData.append('nonce', config.nonce);
+    formData.append('comment_id', commentId);
+    formData.append('like_action', action);
+
+    fetch(config.ajaxUrl, {
+      method: 'POST',
+      body: formData,
+      credentials: 'same-origin',
+    })
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (res) {
+        if (res.success && res.data) {
+          var finalCount = parseInt(res.data.count, 10);
+          countSpan.textContent = finalCount;
+          countSpan.style.display = finalCount > 0 ? 'inline' : 'none';
+        }
+      })
+      .catch(function (err) {
+        console.error('Failed to toggle endorsement:', err);
+      });
+  });
+
+  // 6. Zero-Reload AJAX Comment Submission
   var commentForm = document.getElementById('snip-custom-commentform');
   if (!commentForm) return;
 
@@ -240,6 +352,8 @@ document.addEventListener('DOMContentLoaded', function () {
         resetComposer();
 
         textarea.value = '';
+        textarea.style.height = 'auto';
+
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Send Dispatch ↵';
