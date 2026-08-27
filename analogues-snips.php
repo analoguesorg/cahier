@@ -23,7 +23,7 @@
  * License URI:         https://www.gnu.org/licenses/gpl-3.0.html
  *
  * @package             Analogues-Snips
- * @branch              main
+ * @branch              feature/type-studio
  * @version             1.3.0
  */
 

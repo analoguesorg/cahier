@@ -5,8 +5,8 @@
  * Handles font uploads, variant editing, active/inactive state toggles, native WordPress theme.json registration, and isolated admin specimen loading.
  *
  * @package Analogues_Snips
- * @branch  main
- * @version main.6-snips-typography-php
+ * @branch  feature/type-studio
+ * @version type-studio.6-snips-typography-php
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
