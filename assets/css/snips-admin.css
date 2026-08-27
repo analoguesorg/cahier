@@ -22,7 +22,7 @@
   color: #64748b;
 }
 
-/* 1. Tab Bar with Right-Aligned Dev Tab */
+/* 1. Tab Bar with Colored Indicator Underlines */
 .nav-tab-wrapper.snips-nav-tab-wrapper {
   display: flex !important;
   align-items: flex-end;
@@ -31,15 +31,58 @@
   margin-bottom: 24px;
 }
 
+.nav-tab-wrapper.snips-nav-tab-wrapper .nav-tab {
+  position: relative;
+  border: 1px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  color: #64748b;
+  font-weight: 600;
+  padding: 8px 16px 10px 16px;
+  transition: color 0.15s ease, background 0.15s ease;
+  outline: none;
+  text-decoration: none;
+}
+
+.nav-tab-wrapper.snips-nav-tab-wrapper .nav-tab:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.nav-tab-wrapper.snips-nav-tab-wrapper .nav-tab.nav-tab-active {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #c3c4c7 #c3c4c7 #ffffff #c3c4c7;
+}
+
+.snips-tab-bar {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 2px 2px 0 0;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.nav-tab.nav-tab-active .snips-tab-bar {
+  opacity: 1;
+}
+
+/* Tab Colors */
+.nav-tab[data-color="emerald"] .snips-tab-bar { background-color: #10b981; }
+.nav-tab[data-color="sky"] .snips-tab-bar     { background-color: #0284c7; }
+.nav-tab[data-color="amber"] .snips-tab-bar   { background-color: #f59e0b; }
+.nav-tab[data-color="indigo"] .snips-tab-bar  { background-color: #6366f1; }
+.nav-tab[data-color="purple"] .snips-tab-bar  { background-color: #a855f7; }
+.nav-tab[data-color="slate"] .snips-tab-bar   { background-color: #64748b; }
+.nav-tab[data-color="rose"] .snips-tab-bar    { background-color: #f43f5e; }
+
 .snips-nav-tab-dev {
   margin-left: auto !important;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.82rem !important;
-  color: #64748b;
-}
-
-.snips-nav-tab-dev:hover {
-  color: #0f172a;
 }
 
 /* 2. Top Stats Dashboard */
@@ -202,7 +245,41 @@
   width: 100%;
 }
 
-/* 5. Aligned Tables & Clean Module Registry */
+/* 5. Universal Preset Drawer */
+.snips-preset-drawer {
+  margin-bottom: 24px;
+}
+
+.snips-preset-drawer details {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 4px;
+}
+
+.snips-preset-drawer summary {
+  padding: 12px 18px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: #475569;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.snips-preset-drawer-content {
+  padding: 16px 20px;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.snips-preset-drawer-content h4 {
+  margin: 0 0 4px 0;
+  font-size: 0.95rem;
+}
+
+/* 6. Aligned Tables & Module Registry */
 .snips-table-aligned {
   width: 100%;
   border-collapse: collapse;
@@ -240,7 +317,6 @@
   border: 1px solid #e2e8f0;
 }
 
-/* Clean, standard code tag styling */
 .snips-table-aligned code,
 .snips-shortcode-tag {
   background: #f1f5f9;
@@ -278,7 +354,7 @@
   padding: 16px 18px;
 }
 
-/* 6. JSON Inspector (Developer Tab) */
+/* 7. JSON Inspector & Diagnostics */
 .snips-json-inspector {
   background: #0c0d10;
   border: 1px solid #1f1f23;
@@ -292,7 +368,7 @@
   line-height: 1.5;
 }
 
-/* 7. Toast Notification */
+/* 8. Toast Notification */
 .snips-toast-notification {
   background: #0f172a;
   color: #10b981;
