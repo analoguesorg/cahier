@@ -1,0 +1,241 @@
+:root {
+    --cahier-bg: #fbfbfb;
+    --cahier-card-bg: #ffffff;
+    --cahier-border: #e6e6e6;
+    --cahier-text: #1a1a1a;
+    --cahier-text-muted: #666666;
+    --cahier-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+    /* Distinct Tab Color Palette */
+    --color-registry: #0f172a;
+    --color-chronometer: #0284c7;
+    --color-aviation: #059669;
+    --color-dispatch: #d97706;
+    --color-typestudio: #7c3aed;
+    --color-patronage: #db2777;
+    --color-developer: #475569;
+}
+
+.cahier-wrap {
+    max-width: 980px;
+    margin: 2rem 0 0 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--cahier-text);
+}
+
+.cahier-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--cahier-border);
+}
+
+.cahier-brand {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+}
+
+.cahier-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: var(--cahier-text);
+}
+
+.cahier-badge {
+    font-family: var(--cahier-mono);
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border: 1px solid var(--cahier-border);
+    border-radius: 3px;
+    color: var(--cahier-text-muted);
+}
+
+.cahier-tabs {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--cahier-border);
+    margin-bottom: 1.5rem;
+}
+
+.cahier-tab {
+    padding: 0.6rem 0.9rem;
+    text-decoration: none;
+    color: var(--cahier-text-muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s ease-in-out;
+}
+
+.cahier-tab:hover {
+    color: var(--cahier-text);
+}
+
+/* Individual Tab Color Accents */
+.cahier-tab--registry.is-active    { color: var(--color-registry); border-bottom-color: var(--color-registry); }
+.cahier-tab--chronometer.is-active { color: var(--color-chronometer); border-bottom-color: var(--color-chronometer); }
+.cahier-tab--aviation.is-active    { color: var(--color-aviation); border-bottom-color: var(--color-aviation); }
+.cahier-tab--dispatch.is-active    { color: var(--color-dispatch); border-bottom-color: var(--color-dispatch); }
+.cahier-tab--type-studio.is-active { color: var(--color-typestudio); border-bottom-color: var(--color-typestudio); }
+.cahier-tab--patronage.is-active   { color: var(--color-patronage); border-bottom-color: var(--color-patronage); }
+
+/* Developer Tab: Monospace, Pushed Far Right */
+.cahier-tab--developer {
+    margin-left: auto;
+    font-family: var(--cahier-mono);
+    font-size: 0.8125rem;
+}
+
+.cahier-tab--developer.is-active {
+    color: var(--color-developer);
+    border-bottom-color: var(--color-developer);
+}
+
+.cahier-notice {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+    padding: 0.5rem 1rem;
+    border-radius: 3px;
+    margin-bottom: 1.5rem;
+}
+
+.cahier-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.cahier-card {
+    background: var(--cahier-card-bg);
+    border: 1px solid var(--cahier-border);
+    border-radius: 4px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.cahier-card.is-enabled {
+    border-color: #cbd5e1;
+}
+
+.cahier-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.cahier-card__slug {
+    display: block;
+    font-family: var(--cahier-mono);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--cahier-text-muted);
+}
+
+.cahier-card__title {
+    font-size: 1.125rem;
+    margin: 0.25rem 0 0 0;
+    font-weight: 600;
+}
+
+.cahier-card__body p {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--cahier-text-muted);
+}
+
+/* Minimal Mechanical Switch */
+.cahier-switch {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 18px;
+}
+
+.cahier-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.cahier-switch__slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #e2e8f0;
+    transition: 0.2s;
+    border-radius: 18px;
+}
+
+.cahier-switch__slider:before {
+    position: absolute;
+    content: "";
+    height: 12px;
+    width: 12px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.2s;
+    border-radius: 50%;
+}
+
+.cahier-switch input:checked + .cahier-switch__slider {
+    background-color: #0f172a;
+}
+
+.cahier-switch input:checked + .cahier-switch__slider:before {
+    transform: translateX(16px);
+}
+
+.cahier-button {
+    background: #0f172a !important;
+    border-color: #0f172a !important;
+    border-radius: 3px !important;
+}
+
+.cahier-panel {
+    background: #ffffff;
+    border: 1px solid var(--cahier-border);
+    border-radius: 4px;
+    padding: 1.25rem;
+}
+
+.cahier-panel-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+}
+
+.cahier-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cahier-table th {
+    text-align: left;
+    width: 220px;
+    padding: 8px 0;
+    font-size: 0.875rem;
+    color: var(--cahier-text-muted);
+}
+
+.cahier-table td {
+    padding: 8px 0;
+    font-size: 0.875rem;
+}
+
+.cahier-table code {
+    font-family: var(--cahier-mono);
+    font-size: 0.8125rem;
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 3px;
+}

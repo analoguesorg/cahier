@@ -1,0 +1,68 @@
+/* Dynamic METAR Ticker Tape */
+.cahier-metar-ticker-wrap {
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--cahier-metar-bg, #1a1a1a);
+  color: var(--cahier-metar-color, #10b981);
+  padding: var(--cahier-metar-padding, 10px 0);
+  box-sizing: border-box;
+  white-space: nowrap;
+  display: flex;
+  position: relative;
+  font-family: var(--cahier-metar-font, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-size: var(--cahier-metar-size, 13px);
+  border-radius: var(--cahier-metar-radius, 3px);
+  border: 1px solid var(--cahier-metar-border, #333333);
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.cahier-metar-ticker-wrap.is-dragging {
+  cursor: grabbing;
+}
+
+.cahier-metar-ticker-track {
+  display: inline-flex;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.cahier-metar-ticker-content {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cahier-metar-item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.cahier-metar-sep {
+  display: inline-block;
+  padding: 0 1.25rem;
+  opacity: 0.35;
+}
+
+/* Flight Category Badges */
+.cahier-metar-badge {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  font-family: var(--cahier-metar-font, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  vertical-align: middle;
+  pointer-events: none;
+}
+
+/* Fallback & Loading States */
+.cahier-metar-empty {
+  color: #71717a;
+  font-style: italic;
+}

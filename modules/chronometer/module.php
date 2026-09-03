@@ -32,7 +32,7 @@ final class Module implements Module_Contract {
     }
 
     public function get_description(): string {
-        return 'Dynamic typography-aware date and timestamp shortcodes.';
+        return 'Dynamic typography-aware date and timestamp shortcodes for archival dispatches.';
     }
 
     public function is_active(): bool {
@@ -47,4 +47,33 @@ final class Module implements Module_Contract {
     public function enqueue_admin_assets( string $hook ): void {}
 
     public function enqueue_frontend_assets(): void {}
+
+    public function has_settings_tab(): bool {
+        return true;
+    }
+
+    public function render_settings_tab(): void {
+        ?>
+        <div class="cahier-dev-panel">
+            <h2 class="cahier-section__title">Chronometer Documentation & Reference</h2>
+            <p>The Chronometer module registers dynamic shortcodes for formatting editorial timestamps.</p>
+            <table class="cahier-table">
+                <tbody>
+                    <tr>
+                        <th><code>[cahier_date]</code></th>
+                        <td>Outputs current date using site default format.</td>
+                    </tr>
+                    <tr>
+                        <th><code>[cahier_date format="F j, Y"]</code></th>
+                        <td>Explicit format override using PHP date characters.</td>
+                    </tr>
+                    <tr>
+                        <th>Typography Variable</th>
+                        <td>Inherits CSS variable <code>--cahier-date-font</code> from theme.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <?php
+    }
 }
