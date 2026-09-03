@@ -1,0 +1,13 @@
+# macOS basic junk files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon positioning / custom folder icons
+Icon[$'\r']
+
+# Thumbnail and resource fork files
+._*
+
+# Archive utility junk
+__MACOSX/

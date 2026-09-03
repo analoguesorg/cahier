@@ -1,0 +1,62 @@
+cahier/
+├── cahier.php                          # Main WordPress Plugin Bootstrap
+├── uninstall.php                       # Sovereign cleanup (no orphaned options)
+│
+├── core/                               # Cahier OS Kernel (WordPress-aware)
+│   ├── class-plugin.php                # Kernel Registry & lifecycle loader
+│   ├── class-module-contract.php       # The interface every module must satisfy
+│   ├── class-settings.php              # Central dashboard & module toggles
+│   └── class-crypto.php                # Sovereign HMAC-SHA256 request signer
+│
+├── modules/                            # Autonomous Modules (Fully Self-Contained)
+│   │
+│   ├── chronometer/                    # Navigational / Zulu time, ephemeris
+│   │   ├── module.php                  # Implements Cahier\Core\Module_Contract
+│   │   ├── core/                       # Pure PHP (Calculations, formats)
+│   │   │   ├── class-solar-calculator.php
+│   │   │   └── class-time-formatter.php
+│   │   ├── adapters/wordpress/         # WP Hooks, filters, shortcodes
+│   │   │   ├── class-date-filter.php
+│   │   │   └── class-shortcodes.php
+│   │   └── assets/                     # Scoped CSS/JS
+│   │       └── css/chronometer.css
+│   │
+│   ├── type-studio/                    # Typesetting, optical track, fonts
+│   │   ├── module.php
+│   │   ├── core/
+│   │   │   ├── class-waveform-generator.php
+│   │   │   └── class-typesetter.php
+│   │   ├── adapters/wordpress/
+│   │   │   ├── class-font-loader.php
+│   │   │   └── class-content-filter.php
+│   │   └── assets/
+│   │
+│   ├── dispatch/                       # Staging, n8n orchestrator, syndication
+│   │   ├── module.php
+│   │   ├── core/                       # Agnostic payload builders & signers
+│   │   │   ├── class-payload-builder.php
+│   │   │   └── class-dossier-parser.php
+│   │   ├── adapters/wordpress/         # Gutenberg meta box, REST endpoints
+│   │   │   ├── class-meta-box.php
+│   │   │   └── class-rest-api.php
+│   │   └── assets/
+│   │       ├── css/dispatch-studio.css
+│   │       └── js/dispatch-studio.js
+│   │
+│   ├── patronage/                      # Commons ledger, Colophon rendering
+│   │   ├── module.php
+│   │   ├── core/
+│   │   │   └── class-ledger-formatter.php
+│   │   ├── adapters/wordpress/
+│   │   │   └── class-colophon-shortcode.php
+│   │   └── assets/
+│   │
+│   └── aviation/                       # METAR/TAF decoders, airfield stations
+│       ├── module.php
+│       ├── core/
+│       │   └── class-metar-decoder.php
+│       ├── adapters/wordpress/
+│       │   └── class-weather-widget.php
+│       └── assets/
+│
+└── config.php                          # Optional local overrides & feature flags
